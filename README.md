@@ -26,12 +26,14 @@ npm start
 
 ### Production Build & SSR Server
 ```bash
-# Build both browser and server bundles
-npm run build
+# Install dependencies after cloning the repository
+npm install
 
-# Start Node.js Express SSR Server (port 4000)
+# Build browser/server bundles, then start Node.js Express SSR Server (port 4000)
 npm run serve:ssr:travel
 ```
+
+The generated `dist/` folder is intentionally excluded from Git. The command above creates it before starting the server, so it does not need to be uploaded to GitHub.
 
 ---
 
