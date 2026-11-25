@@ -3,11 +3,11 @@
   "version": 1,
   "cli": {
     "packageManager": "npm",
-    "analytics": "4640625c-b0b4-4f85-ae0d-dcd443da1ba4"
+    "analytics": "beb7f5e9-bdfe-46d8-9ad7-4ae5b41e146b"
   },
   "newProjectRoot": "projects",
   "projects": {
-    "travel": {
+    "travels": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -28,15 +28,10 @@
             "styles": [
               "src/styles.css"
             ],
-            "optimization": {
-              "fonts": {
-                "inline": false
-              }
-            },
             "server": "src/main.server.ts",
             "outputMode": "server",
             "security": {
-              "allowedHosts": ["localhost", "localhost:4000", "localhost:4200", "127.0.0.1", "127.0.0.1:4000", "127.0.0.1:4200"]
+              "allowedHosts": []
             },
             "ssr": {
               "entry": "src/server.ts"
@@ -52,8 +47,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "25kB",
-                  "maximumError": "50kB"
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
                 }
               ],
               "outputHashing": "all"
@@ -70,10 +65,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "travel:build:production"
+              "buildTarget": "travels:build:production"
             },
             "development": {
-              "buildTarget": "travel:build:development"
+              "buildTarget": "travels:build:development"
             }
           },
           "defaultConfiguration": "development"

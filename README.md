@@ -1,45 +1,59 @@
-# TripMate Web Application (Angular SSR)
+# Travels
 
-A modern, high-performance travel exploration and itinerary planning web application built with Angular 22 and Server-Side Rendering (SSR).
+This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.0.
 
----
+## Development server
 
-## 🧭 Routes & Features
+To start a local development server, run:
 
-- **`/explore`**: Interactive panoramic carousel, category filters, and detailed destination showcases.
-- **`/agencies`**: Directory of global travel agencies with reviews, perks, and direct booking links.
-- **`/planner`**: CRUD itinerary scheduler with real-time budget, duration, and traveler count calculations.
-- **`/login`**: Dual-tab authentication screen:
-  - **Sign In Tab**: Log in using stored JSON credentials or 1-click Quick Fill.
-  - **Create Account Tab**: Register new users with Name, Email, Password, and Theme Preference.
-  - **User Profile & JSON Inspector**: View stored user profile, switch themes, inspect live JSON data, or copy it to clipboard.
-
----
-
-## 🛠️ Development & Deployment Commands
-
-### Development Server
 ```bash
-npm start
-# Runs live development server at http://localhost:4200
+ng serve
 ```
 
-### Production Build & SSR Server
-```bash
-# Install dependencies after cloning the repository
-npm install
+Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
-# Build browser/server bundles, then start Node.js Express SSR Server (port 4000)
-npm run serve:ssr:travel
+## Code scaffolding
+
+Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+
+```bash
+ng generate component component-name
 ```
 
-The generated `dist/` folder is intentionally excluded from Git. The command above creates it before starting the server, so it does not need to be uploaded to GitHub.
+For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
 
----
+```bash
+ng generate --help
+```
 
-## 💾 Web JSON Data Storage
+## Building
 
-All user credentials, theme preferences, and scheduled trips are stored in the browser's `localStorage` under:
-- **`tripmate_users_json_db`**: Registry of all registered user account objects.
-- **`tripmate_active_session`**: Currently authenticated user session.
-- **`wander_theme_mode`**: Active theme (`dark` or `light`).
+To build the project run:
+
+```bash
+ng build
+```
+
+This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+
+## Running unit tests
+
+To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+
+```bash
+ng test
+```
+
+## Running end-to-end tests
+
+For end-to-end (e2e) testing, run:
+
+```bash
+ng e2e
+```
+
+Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+
+## Additional Resources
+
+For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

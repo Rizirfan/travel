@@ -1,5 +1,5 @@
 {
-  "name": "travel",
+  "name": "travels",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -7,10 +7,10 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:travel": "npm run build && node dist/travel/server/server.mjs"
+    "serve:ssr:travels": "node dist/travels/server/server.mjs"
   },
   "private": true,
-  "packageManager": "npm@10.9.8",
+  "packageManager": "npm@12.2.3",
   "dependencies": {
     "@angular/common": "^22.2.0",
     "@angular/compiler": "^22.2.0",

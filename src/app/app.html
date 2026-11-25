@@ -1,105 +1,169 @@
-<div class="app-theme-wrapper" [ngClass]="travelService.currentTheme + '-theme'">
 
-  <!-- Top Navigation Header -->
-  <header class="top-nav">
-    <div class="nav-container">
-      <a routerLink="/explore" class="brand-anchor">
-        <div class="brand-badge">
-          <i class="fa-solid fa-compass"></i>
-        </div>
-        <span class="brand-label">TripMate</span>
-      </a>
+<div class="container">
 
-      <!-- Navigation Switcher -->
-      <nav class="tab-switcher">
-        <a 
-          routerLink="/explore" 
-          routerLinkActive="active" 
-          class="tab-link">
-          <i class="fa-regular fa-compass"></i>
-          <span>Explore Guides</span>
-        </a>
-        <a 
-          routerLink="/agencies" 
-          routerLinkActive="active" 
-          class="tab-link">
-          <i class="fa-solid fa-earth-americas"></i>
-          <span>Top Agencies</span>
-        </a>
-        <a 
-          routerLink="/planner" 
-          routerLinkActive="active" 
-          class="tab-link">
-          <i class="fa-regular fa-calendar-check"></i>
-          <span>Trip Planner</span>
-        </a>
-      </nav>
+  <!-- Navigation -->
+  <header>
+    <h2>TRIPMATE.</h2>
 
-      <!-- Right Header Tools -->
-      <div class="nav-tools">
-        <!-- Dark / Light Theme Mode Switcher -->
-        <button 
-          class="btn-theme-toggle" 
-          (click)="toggleTheme()" 
-          [title]="'Switch to ' + (isDark ? 'Light' : 'Dark') + ' Mode'"
-          [attr.aria-label]="'Switch to ' + (isDark ? 'Light' : 'Dark') + ' Mode'">
-          <i class="fa-solid" [class.fa-sun]="isDark" [class.fa-moon]="!isDark"></i>
-          <span class="theme-text">{{isDark ? 'Light' : 'Dark'}}</span>
-        </button>
-
-        <!-- User Authentication Status -->
-        @if (!travelService.currentUser) {
-          <a
-            routerLink="/login"
-            routerLinkActive="active"
-            class="btn-nav-auth"
-            id="nav-login-btn"
-            data-testid="nav-login-btn">
-            <i class="fa-regular fa-user"></i>
-            <span>Sign In</span>
-          </a>
-        } @else {
-          <div class="user-auth-pill" id="nav-user-badge" data-testid="nav-user-badge">
-            <a routerLink="/login" class="user-info-link" title="Account Profile">
-              <i class="fa-solid fa-circle-user user-icon"></i>
-              <span class="user-name-text" data-testid="user-name">{{ travelService.currentUser.name }}</span>
-            </a>
-            <button
-              type="button"
-              class="btn-quick-logout"
-              (click)="logout()"
-              title="Sign Out"
-              id="nav-logout-btn"
-              data-testid="nav-logout-btn"
-              aria-label="Sign Out">
-              <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            </button>
-          </div>
-        }
-
-        <a routerLink="/planner" class="btn-header-cta">
-          <i class="fa-solid fa-plus"></i>
-          <span>Schedule Trip</span>
-        </a>
-      </div>
-    </div>
+    <nav>
+      <a href="#home">Home</a>
+      <a href="#trips">My Trips</a>
+      <a href="#add">Add Trip</a>
+    </nav>
   </header>
 
-  <main class="page-main">
-    <router-outlet></router-outlet>
-  </main>
-
-  <footer class="site-footer">
-    <div class="footer-content">
-      <div class="footer-credits">
-        &copy; 2026 TripMate. Aesthetic exploration & journey planning.
-      </div>
-      <div class="footer-links">
-        <a href="#" class="footer-icon" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-        <a href="#" class="footer-icon" aria-label="X"><i class="fa-brands fa-x-twitter"></i></a>
-        <a href="#" class="footer-icon" aria-label="Unsplash"><i class="fa-brands fa-unsplash"></i></a>
-      </div>
+  <!-- Home Section -->
+  <section class="hero" id="home">
+    <div class="hero-text">
+      <p>YOUR JOURNEY STARTS HERE</p>
+      <h1>Explore the world.<br>Make memories.</h1>
+      <p>Plan your trips and manage your travel budget in one place.</p>
+      <a href="#add" class="btn">Plan Your Trip</a>
     </div>
+
+    <div class="hero-image">
+      <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=900"
+           alt="Mountain travel">
+    </div>
+  </section>
+
+  <!-- Dashboard -->
+  <section class="dashboard">
+
+    <div class="stat">
+      <h2>{{ trips().length }}</h2>
+      <p>Total Trips</p>
+    </div>
+
+    <div class="stat">
+      <h2>₹{{ getTotalBudget() }}</h2>
+      <p>Total Budget</p>
+    </div>
+
+    <div class="stat">
+      <h2>{{ getUpcomingTrips() }}</h2>
+      <p>Upcoming Trips</p>
+    </div>
+
+  </section>
+
+  <!-- Popular Destinations -->
+  <section class="popular">
+    <h2>Popular Destinations</h2>
+    <p>Find inspiration for your next journey.</p>
+
+    <div class="destination-list">
+
+      <div class="destination">
+        <img src="https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=500"
+             alt="Beach">
+        <h3>Goa</h3>
+        <p>Beaches and beautiful views</p>
+      </div>
+
+      <div class="destination">
+        <img src="https://images.unsplash.com/photo-1564507592333-c60657eea523?w=500"
+             alt="Taj Mahal">
+        <h3>Agra</h3>
+        <p>History and architecture</p>
+      </div>
+
+      <div class="destination">
+        <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=500"
+             alt="Mountain">
+        <h3>Manali</h3>
+        <p>Mountains and adventure</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- My Trips -->
+  <section class="trips" id="trips">
+
+    <h2>My Travel Plans</h2>
+
+    <input
+      type="text"
+      placeholder="Search destination..."
+      [value]="searchText()"
+      (input)="searchText.set($any($event.target).value)"
+    >
+
+    <div class="trip-list">
+
+      @for (trip of filteredTrips(); track trip.id) {
+
+        <div class="trip-card">
+
+          <div>
+            <h3>{{ trip.destination }}</h3>
+            <p>Travel Date: {{ trip.date }}</p>
+            <p>Budget: ₹{{ trip.budget }}</p>
+          </div>
+
+          <button class="delete-btn" (click)="deleteTrip(trip.id)">
+            Delete
+          </button>
+
+        </div>
+
+      } @empty {
+
+        <p class="empty">No trips available. Add your first trip.</p>
+
+      }
+
+    </div>
+
+  </section>
+
+  <!-- Add Trip -->
+  <section class="add-trip" id="add">
+
+    <h2>Plan a New Trip</h2>
+    <p>Enter your travel details below.</p>
+
+    <form (submit)="addTrip($event)">
+
+      <label>Destination</label>
+      <input
+        type="text"
+        placeholder="Enter destination"
+        [value]="destination()"
+        (input)="destination.set($any($event.target).value)"
+        required
+      >
+
+      <label>Travel Date</label>
+      <input
+        type="date"
+        [value]="date()"
+        (input)="date.set($any($event.target).value)"
+        required
+      >
+
+      <label>Travel Budget</label>
+      <input
+        type="number"
+        placeholder="Enter budget"
+        [value]="budget()"
+        (input)="budget.set($any($event.target).value)"
+        min="1"
+        required
+      >
+
+      <button type="submit" class="btn">Add Trip</button>
+
+    </form>
+
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <h2>TRIPMATE.</h2>
+    <p>Travel more. Worry less.</p>
+    <p>© 2026 TripMate. All Rights Reserved.</p>
   </footer>
 
 </div>
