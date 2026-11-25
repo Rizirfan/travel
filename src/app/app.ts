@@ -20,4 +20,8 @@ export class App {
   toggleTheme(): void {
     this.travelService.toggleTheme();
   }
+
+  logout(): void {
+    this.travelService.logout();
+  }
 }

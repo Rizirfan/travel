@@ -22,6 +22,23 @@ export interface Destination {
   travelTip: string;
 }
 
+export interface UserAccount {
+  id: string;
+  name: string;
+  email: string;
+  password: string;
+  role: string;
+  avatar: string;
+  memberSince: string;
+  themePreference: 'dark' | 'light';
+  savedDestinations: number[];
+  scheduledTrips: TripPlan[];
+  createdAt: string;
+  lastLoginAt?: string;
+}
+
+export type User = UserAccount;
+
 export interface TripPlan {
   id: number;
   destination: string;
@@ -423,10 +440,58 @@ export class TravelService {
 
   private savedIds: Set<number> = new Set<number>([1, 3]);
 
+  // User Authentication & JSON Registry
+  readonly USERS_DB_KEY = 'tripmate_users_json_db';
+  readonly ACTIVE_SESSION_KEY = 'tripmate_active_session';
+
+  usersDatabase: UserAccount[] = [];
+  currentUser: UserAccount | null = null;
+
+  readonly DEFAULT_USERS: UserAccount[] = [
+    {
+      id: 'USR-101',
+      name: 'Alex Mercer',
+      email: 'alex@tripmate.com',
+      password: 'Password123!',
+      role: 'VIP Explorer',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
+      memberSince: 'March 2024',
+      themePreference: 'dark',
+      savedDestinations: [1, 3],
+      scheduledTrips: [
+        {
+          id: 101,
+          destination: 'Kyoto Ancient Sanctuaries',
+          country: 'Japan',
+          date: '2026-11-20',
+          days: 8,
+          travelers: 2,
+          budget: '$3,800',
+          status: 'Confirmed',
+          notes: 'Bamboo forest photography and ryokan reservations confirmed.'
+        },
+        {
+          id: 102,
+          destination: 'Serengeti Migration Expedition',
+          country: 'Tanzania',
+          date: '2027-01-15',
+          days: 10,
+          travelers: 4,
+          budget: '$8,200',
+          status: 'Draft',
+          notes: 'Hot air balloon safari upgrade pending.'
+        }
+      ],
+      createdAt: '2024-03-15T10:00:00.000Z'
+    }
+  ];
+
   constructor() {
+    this.loadUsersDatabase();
     this.loadFavorites();
     this.loadTrips();
     this.initTheme();
+    this.loadActiveSession();
   }
 
   getPlannedTrips(): TripPlan[] {
@@ -440,12 +505,14 @@ export class TravelService {
     };
     this.plannedTrips.unshift(newEntry);
     this.persistTrips();
+    this.syncCurrentUserData();
     return newEntry;
   }
 
   deleteTrip(id: number): void {
     this.plannedTrips = this.plannedTrips.filter(t => t.id !== id);
     this.persistTrips();
+    this.syncCurrentUserData();
   }
 
   updateTripStatus(id: number, status: 'Draft' | 'Confirmed' | 'Completed'): void {
@@ -453,6 +520,7 @@ export class TravelService {
     if (item) {
       item.status = status;
       this.persistTrips();
+      this.syncCurrentUserData();
     }
   }
 
@@ -467,6 +535,7 @@ export class TravelService {
       this.savedIds.add(id);
     }
     this.persistFavorites();
+    this.syncCurrentUserData();
   }
 
   getSavedIds(): Set<number> {
@@ -513,6 +582,7 @@ export class TravelService {
         localStorage.setItem('wander_theme_mode', this.currentTheme);
       } catch (e) {}
     }
+    this.syncCurrentUserData();
   }
 
   initTheme(): void {
@@ -532,5 +602,197 @@ export class TravelService {
         localStorage.setItem('wander_trips_modern', JSON.stringify(this.plannedTrips));
       } catch (e) {}
     }
+  }
+
+  // =========================================================================
+  // USER REGISTRATION, AUTHENTICATION & JSON DATA STORE
+  // =========================================================================
+
+  register(name: string, email: string, password: string, theme: 'dark' | 'light' = 'dark'): { success: boolean; message: string; user?: UserAccount } {
+    const cleanName = (name || '').trim();
+    const cleanEmail = (email || '').trim().toLowerCase();
+    const cleanPassword = (password || '').trim();
+
+    if (!cleanName || !cleanEmail || !cleanPassword) {
+      return { success: false, message: 'All registration fields (Full Name, Email, Password) are required.' };
+    }
+
+    if (cleanPassword.length < 3) {
+      return { success: false, message: 'Password must be at least 3 characters long.' };
+    }
+
+    // Refresh database from local storage to catch any prior writes
+    this.loadUsersDatabase();
+
+    // Check if user already exists in JSON database
+    const existing = this.usersDatabase.find(u => u.email.toLowerCase() === cleanEmail);
+    if (existing) {
+      return { success: false, message: `An account with email "${cleanEmail}" is already registered. Please sign in instead.` };
+    }
+
+    const newUser: UserAccount = {
+      id: 'USR-' + Math.floor(1000 + Math.random() * 9000),
+      name: cleanName,
+      email: cleanEmail,
+      password: cleanPassword,
+      role: 'Registered Explorer',
+      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80',
+      memberSince: this.formatCurrentMonthYear(),
+      themePreference: theme,
+      savedDestinations: [],
+      scheduledTrips: [],
+      createdAt: new Date().toISOString()
+    };
+
+    this.usersDatabase.push(newUser);
+    this.saveUsersDatabase();
+
+    return {
+      success: true,
+      message: `Account created successfully for ${cleanName}! You can now sign in with your credentials.`,
+      user: newUser
+    };
+  }
+
+  login(email: string, password: string): { success: boolean; message?: string } {
+    const cleanEmail = (email || '').trim().toLowerCase();
+    const cleanPassword = (password || '').trim();
+
+    if (!cleanEmail || !cleanPassword) {
+      return { success: false, message: 'Please provide both email and password.' };
+    }
+
+    // Refresh database from local storage to catch any newly registered users
+    this.loadUsersDatabase();
+
+    const matchedUser = this.usersDatabase.find(
+      u => u.email.toLowerCase() === cleanEmail && u.password === cleanPassword
+    );
+
+    if (matchedUser) {
+      this.currentUser = matchedUser;
+      matchedUser.lastLoginAt = new Date().toISOString();
+
+      // Apply User's Saved Theme Setting from JSON
+      if (matchedUser.themePreference) {
+        this.currentTheme = matchedUser.themePreference;
+        if (typeof window !== 'undefined' && window.localStorage) {
+          try {
+            localStorage.setItem('wander_theme_mode', this.currentTheme);
+          } catch (e) {}
+        }
+      }
+
+      // Apply User's Saved Scheduled Trips from JSON
+      if (Array.isArray(matchedUser.scheduledTrips)) {
+        this.plannedTrips = [...matchedUser.scheduledTrips];
+        this.persistTrips();
+      }
+
+      // Apply User's Saved Destinations from JSON
+      if (Array.isArray(matchedUser.savedDestinations)) {
+        this.savedIds = new Set(matchedUser.savedDestinations);
+        this.persistFavorites();
+      }
+
+      this.saveUsersDatabase();
+      this.persistActiveSession();
+      return { success: true };
+    }
+
+    return { success: false, message: 'Invalid email or password. Please verify your credentials.' };
+  }
+
+  logout(): void {
+    if (this.currentUser) {
+      this.syncCurrentUserData();
+    }
+    this.currentUser = null;
+    this.persistActiveSession();
+  }
+
+  syncCurrentUserData(): void {
+    if (!this.currentUser) return;
+
+    this.currentUser.themePreference = this.currentTheme;
+    this.currentUser.savedDestinations = Array.from(this.savedIds);
+    this.currentUser.scheduledTrips = [...this.plannedTrips];
+
+    const idx = this.usersDatabase.findIndex(u => u.id === this.currentUser?.id);
+    if (idx !== -1) {
+      this.usersDatabase[idx] = { ...this.currentUser };
+    }
+    this.saveUsersDatabase();
+    this.persistActiveSession();
+  }
+
+  getUserJsonString(): string {
+    if (!this.currentUser) return '{}';
+    return JSON.stringify(this.currentUser, null, 2);
+  }
+
+  getUsersDatabaseJsonString(): string {
+    return JSON.stringify(this.usersDatabase, null, 2);
+  }
+
+  private loadUsersDatabase(): void {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      try {
+        const raw = localStorage.getItem(this.USERS_DB_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            this.usersDatabase = parsed;
+            return;
+          }
+        }
+      } catch (e) {}
+    }
+    this.usersDatabase = JSON.parse(JSON.stringify(this.DEFAULT_USERS));
+    this.saveUsersDatabase();
+  }
+
+  private saveUsersDatabase(): void {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      try {
+        localStorage.setItem(this.USERS_DB_KEY, JSON.stringify(this.usersDatabase, null, 2));
+      } catch (e) {}
+    }
+  }
+
+  private loadActiveSession(): void {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      try {
+        const raw = localStorage.getItem(this.ACTIVE_SESSION_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          const found = this.usersDatabase.find(u => u.id === parsed.id);
+          if (found) {
+            this.currentUser = found;
+            if (found.themePreference) this.currentTheme = found.themePreference;
+            if (Array.isArray(found.scheduledTrips)) this.plannedTrips = [...found.scheduledTrips];
+            if (Array.isArray(found.savedDestinations)) this.savedIds = new Set(found.savedDestinations);
+          }
+        }
+      } catch (e) {}
+    }
+  }
+
+  private persistActiveSession(): void {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      try {
+        if (this.currentUser) {
+          localStorage.setItem(this.ACTIVE_SESSION_KEY, JSON.stringify(this.currentUser));
+        } else {
+          localStorage.removeItem(this.ACTIVE_SESSION_KEY);
+        }
+      } catch (e) {}
+    }
+  }
+
+  private formatCurrentMonthYear(): string {
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const d = new Date();
+    return `${months[d.getMonth()]} ${d.getFullYear()}`;
   }
 }

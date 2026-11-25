@@ -7,7 +7,7 @@
         <div class="brand-badge">
           <i class="fa-solid fa-compass"></i>
         </div>
-        <span class="brand-label">Wanderlust</span>
+        <span class="brand-label">TripMate</span>
       </a>
 
       <!-- Navigation Switcher -->
@@ -47,6 +47,36 @@
           <span class="theme-text">{{isDark ? 'Light' : 'Dark'}}</span>
         </button>
 
+        <!-- User Authentication Status -->
+        @if (!travelService.currentUser) {
+          <a
+            routerLink="/login"
+            routerLinkActive="active"
+            class="btn-nav-auth"
+            id="nav-login-btn"
+            data-testid="nav-login-btn">
+            <i class="fa-regular fa-user"></i>
+            <span>Sign In</span>
+          </a>
+        } @else {
+          <div class="user-auth-pill" id="nav-user-badge" data-testid="nav-user-badge">
+            <a routerLink="/login" class="user-info-link" title="Account Profile">
+              <i class="fa-solid fa-circle-user user-icon"></i>
+              <span class="user-name-text" data-testid="user-name">{{ travelService.currentUser.name }}</span>
+            </a>
+            <button
+              type="button"
+              class="btn-quick-logout"
+              (click)="logout()"
+              title="Sign Out"
+              id="nav-logout-btn"
+              data-testid="nav-logout-btn"
+              aria-label="Sign Out">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            </button>
+          </div>
+        }
+
         <a routerLink="/planner" class="btn-header-cta">
           <i class="fa-solid fa-plus"></i>
           <span>Schedule Trip</span>
@@ -62,7 +92,7 @@
   <footer class="site-footer">
     <div class="footer-content">
       <div class="footer-credits">
-        &copy; 2026 Wanderlust. Aesthetic exploration & journey planning.
+        &copy; 2026 TripMate. Aesthetic exploration & journey planning.
       </div>
       <div class="footer-links">
         <a href="#" class="footer-icon" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
